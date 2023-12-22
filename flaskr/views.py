@@ -1,4 +1,4 @@
-# views.py
+# views.py(ルーティング)
 from flask import (
     Blueprint, abort, request, render_template,
     redirect, url_for, flash
