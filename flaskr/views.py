@@ -1,16 +1,16 @@
 # views.py(ルーティング)
+from flaskr.__init__ import db
+from flaskr.models import(
+    User, PasswordResetToken
+)
+from flaskr.forms import (
+    LoginForm, RegisterForm, ResetPasswordForm
+)
 from flask import (
     Blueprint, abort, request, render_template,
     redirect, url_for, flash
 )
 from flask_login import login_user, login_required, logout_user
-from flaskr.models import(
-    User, PasswordResetToken
-)
-from flaskr import db
-from flaskr.forms import (
-    LoginForm, RegisterForm, ResetPasswordForm
-)
 
 bp = Blueprint('app', __name__, url_prefix='')
 

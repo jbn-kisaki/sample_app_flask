@@ -21,7 +21,7 @@
 # >> pip install email-validator 2.1.0
 # >> pip install PyMySQL 1.1.0
 
-from flaskr import create_app
+from flaskr.__init__ import create_app
 
 app = create_app()
 

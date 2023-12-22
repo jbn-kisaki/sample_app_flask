@@ -1,5 +1,5 @@
 # models.py
-from flaskr import db, login_manager
+from flaskr.__init__ import db, login_manager
 from flask_bcrypt import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
