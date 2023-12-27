@@ -4,13 +4,18 @@ from flaskr.models import(
     User, PasswordResetToken
 )
 from flaskr.forms import (
-    LoginForm, RegisterForm, ResetPasswordForm
+    LoginForm, RegisterForm, ResetPasswordForm,
+    ForgotPasswordForm, UserForm, ChangePasswordForm
 )
+from datetime import datetime
+
 from flask import (
     Blueprint, abort, request, render_template,
     redirect, url_for, flash
 )
-from flask_login import login_user, login_required, logout_user
+from flask_login import (
+    login_user, login_required, logout_user, current_user
+)
 
 bp = Blueprint('app', __name__, url_prefix='')
 
@@ -36,7 +41,7 @@ def login():
             return redirect(next)
         elif not user:
             flash('存在しないユーザーです')
-        elif not user:
+        elif not user.is_active:
             flash('無効なユーザーです。パスワードを再設定してください')
         elif not user.validate_password(form.password.data):
             flash('メールアドレスとパスワードの組み合わせが誤っています')
@@ -79,3 +84,53 @@ def reset_password(token):
         flash('パスワードを更新しました')
         return redirect(url_for('app.login'))
     return render_template('reset_password.html', form=form)
+
+@bp.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    form = ForgotPasswordForm(request.form)
+    if request.method == 'POST' and form.validate():
+        email = form.email.data
+        user = User.select_user_by_email(email)
+        if user:
+            token = PasswordResetToken.publish_token(user)
+            db.session.commit()
+            reset_url = f'パスワード再設定用URL: http://127.0.0.1:5000/reset_password/{token}'
+            print(reset_url)
+            flash('パスワード再設定用のURLを発行しました')
+        else:
+            flash('存在しないユーザーです')
+    return render_template('forgot_password.html', form=form)
+
+@bp.route('/user', methods=['GET', 'POST'])
+@login_required
+def user():
+    form = UserForm(request.form)
+    if request.method == 'POST' and form.validate():
+        user_id = current_user.get_id()
+        user = User.select_user_by_id(user_id)
+        if user:
+            user.username = form.username.data
+            user.email = form.email.data
+            file = request.files[form.picture_path.name].read()
+            if file:
+                file_name = user_id + '_' + str(int(datetime.now().timestamp())) + '.jpg'
+                picture_path = 'flaskr/static/user_image/' + file_name
+                open(picture_path, 'wb').write(file)
+                user.picture_path = 'user_image/' + file_name
+        db.session.commit()
+        flash('ユーザー情報の更新に成功しました')
+    return render_template('user.html', form=form)
+
+@bp.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = ChangePasswordForm(request.form)
+    if request.method == 'POST' and form.validate():
+        user = User.select_user_by_id(current_user.get_id())
+        password = form.password.data
+        if user:
+            user.sava_new_password(password)
+        db.session.commit()
+        flash('パスワードを更新しました')
+        return redirect(url_for('app.user'))
+    return render_template('change_password.html', form=form)

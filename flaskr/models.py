@@ -10,6 +10,7 @@ from uuid import uuid4
 def load_user(user_id):
     return User.query.get(user_id)
 
+# ユーザーテーブル
 class User(UserMixin, db.Model):
     
     __tablename__ = 'users'
@@ -48,6 +49,7 @@ class User(UserMixin, db.Model):
         self.password = generate_password_hash(new_password)
         self.is_active = True
 
+# パスワード設定用トークン作成テーブル
 class PasswordResetToken(db.Model):
     
     __tablename__ = 'password_reset_tokens'
