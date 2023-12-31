@@ -134,3 +134,12 @@ def change_password():
         flash('パスワードを更新しました')
         return redirect(url_for('app.user'))
     return render_template('change_password.html', form=form)
+
+# エラーハンドリング
+@bp.app_errorhandler(404)
+def page_not_found(e):
+    return redirect(url_for('app.home'))
+
+@bp.app_errorhandler(500)
+def server_error(e):
+    return render_template('500.html'), 500
