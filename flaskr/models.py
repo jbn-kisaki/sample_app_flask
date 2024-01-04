@@ -1,7 +1,7 @@
 # models.py
 from flaskr.__init__ import db, login_manager
 from flask_bcrypt import generate_password_hash, check_password_hash
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
 
 from datetime import datetime, timedelta
 from uuid import uuid4
@@ -38,6 +38,17 @@ class User(UserMixin, db.Model):
     @classmethod
     def select_user_by_id(cls, id):
         return cls.query.get(id)
+    
+    @classmethod
+    def search_by_name(cls, username):
+        return cls.query.filter_by(
+            is_active = True
+        ).filter(
+            cls.username.like(f'%{username}%'),
+            cls.id != int(current_user.get_id())
+        ).with_entities(
+            cls.id, cls.username, cls.picture_path
+        ).all()
     
     def validate_password(self, password):
         return check_password_hash(self.password, password)

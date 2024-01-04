@@ -5,7 +5,8 @@ from flaskr.models import(
 )
 from flaskr.forms import (
     LoginForm, RegisterForm, ResetPasswordForm,
-    ForgotPasswordForm, UserForm, ChangePasswordForm
+    ForgotPasswordForm, UserForm, ChangePasswordForm,
+    UserSearchForm
 )
 from datetime import datetime
 
@@ -135,7 +136,17 @@ def change_password():
         return redirect(url_for('app.user'))
     return render_template('change_password.html', form=form)
 
-# エラーハンドリング
+@bp.route('user_search', methods=['GET', 'POST'])
+@login_required
+def user_search():
+    form = UserSearchForm(request.form)
+    users = None
+    if request.method == 'POST' and form.validate():
+        username = form.username.data
+        users = User.search_by_name(username)
+    return render_template('user_search.html', form=form, users=users)
+
+# ------エラーハンドリング------
 @bp.app_errorhandler(404)
 def page_not_found(e):
     return redirect(url_for('app.home'))

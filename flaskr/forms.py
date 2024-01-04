@@ -84,6 +84,7 @@ class UserForm(Form):
                 return False
         return True
 
+# パスワード更新用フォーム
 class ChangePasswordForm(Form):
     password = PasswordField(
         'パスワード: ', validators=[DataRequired(), EqualTo('confirm_password', message='パスワードが一致しません')]
@@ -96,3 +97,10 @@ class ChangePasswordForm(Form):
     def validate_password(self, field):
         if len(field.data) < 8:
             raise ValidationError('パスワードは8文字以上です')
+
+# ユーザー検索用フォーム
+class UserSearchForm(Form):
+    username = StringField(
+        '名前: ', validators=[DataRequired()]
+    )
+    submit = SubmitField('ユーザー検索')
